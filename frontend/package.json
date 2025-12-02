@@ -1,0 +1,26 @@
+{
+  "name": "squid-game-web",
+  "version": "1.0.0",
+  "description": "Interactive Squid Game web application with C++ backend",
+  "main": "script.js",
+  "scripts": {
+    "start": "npm run frontend",
+    "frontend": "http-server -p 3000 -c-1",
+    "backend": "echo 'Please compile and run backend.cpp manually'",
+    "dev": "concurrently \"npm run frontend\" \"echo 'Run backend.cpp separately'\"",
+    "build": "echo 'No build step required for frontend'"
+  },
+  "keywords": [
+    "game",
+    "squid-game",
+    "web-game",
+    "cpp-backend",
+    "javascript"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^7.0.0",
+    "http-server": "^14.1.1"
+  }
+}

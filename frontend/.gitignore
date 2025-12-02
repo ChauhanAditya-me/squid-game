@@ -1,0 +1,42 @@
+# Backend executables
+backend.exe
+backend
+*.exe
+*.out
+*.o
+*.obj
+
+# Node modules
+node_modules/
+npm-debug.log*
+package-lock.json
+
+# Audio files (optional - users add their own)
+assets/*.mp3
+assets/*.wav
+assets/*.ogg
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# Build files
+*.pdb
+*.ilk
+*.idb
+
+# Don't ignore README in assets
+!assets/README.md

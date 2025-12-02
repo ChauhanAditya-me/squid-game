@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Squid Game - Survival Challenge</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='28' fill='%23ed1b76'/%3E%3Ctext x='32' y='40' font-size='28' text-anchor='middle' fill='white'%3E%F0%9F%91%8D%3C/text%3E%3C/svg%3E">
+    <!-- Gaming Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800&family=Rajdhani:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Background Music -->
+    <audio id="bgMusic" src="assets/Squid Game OST - Pink Soldiers (Extended Ver.) 4.mp3" loop autoplay></audio>
+                <!-- Speaker Icon for Mute/Unmute -->
+                <div id="musicToggle" style="position:fixed;bottom:32px;right:32px;z-index:9999;cursor:pointer;width:48px;height:48px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);border-radius:50%;box-shadow:0 2px 12px rgba(0,0,0,0.25);">
+                    <span id="musicIcon" style="font-size:2rem;color:#ed1b76;">🔊</span>
+                </div>
+
+    <!-- Main Container -->
+    <div id="app" class="container">
+        <!-- Welcome Screen -->
+        <div id="welcomeScreen" class="screen active">
+            <div class="welcome-content">
+                <img src="assets/squid game.png" id="gameLogo" class="game-logo" alt="Squid Game Logo">
+                <p class="subtitle">Survival Challenge</p>
+                <div class="player-setup">
+                    <label for="playerCount">Number of Players (1-10):</label>
+                    <input type="number" id="playerCount" min="1" max="10" value="2">
+                    <div id="playerNames" class="player-names-container"></div>
+                    <button id="startBtn" class="btn-primary">START GAME</button>
+                </div>
+            </div>
+        </div>
+        <!-- Rulebook Screen: Only specific rules shown dynamically -->
+        <div id="rulebookScreen" class="screen">
+            <div class="rulebook-content">
+                <div class="rules-section" id="rulesRedLight" style="display:none">
+                    <h2 class="rulebook-game-title">Red Light Green Light</h2>
+                    <p><strong>Goal:</strong> Reach the finish line (4 steps)</p>
+                    <p><strong>Rules:</strong></p>
+                    <ul>
+                        <li>Press <strong>MOVE</strong> only on <strong>GREEN</strong> to advance (+1 step)</li>
+                        <li>Pressing during <strong>RED</strong> = instant elimination</li>
+                        <li>Lights switch unpredictably — complete <strong>4</strong> safe moves within the time</li>
+                    </ul>
+                </div>
+                <div class="rules-section" id="rulesGlassBridge" style="display:none">
+                    <h2 class="rulebook-game-title">Glass Bridge</h2>
+                    <p><strong>Goal:</strong> Cross the bridge (5 steps)</p>
+                    <p><strong>Rules:</strong></p>
+                    <ul>
+                        <li>On each row, click <strong>LEFT</strong> or <strong>RIGHT</strong> glass tile</li>
+                        <li>One tile is safe, one breaks (50/50)</li>
+                        <li>Broken glass = Elimination</li>
+                        <li>Must complete all 5 steps to survive</li>
+                    </ul>
+                </div>
+                <div class="rules-section" id="rulesTugOfWar" style="display:none">
+                    <h2 class="rulebook-game-title">Tug of War</h2>
+                    <p><strong>Goal:</strong> Build more strength than everyone else before the timer ends</p>
+                    <p><strong>Rules:</strong></p>
+                    <ul>
+                        <li>Tap the button to extend the bar; it shrinks when idle</li>
+                        <li>Keep the bar's tip inside the moving highlight to gain strength</li>
+                        <li>Round ends when the timer hits zero</li>
+                        <li>Highest strength survives (ties survive)</li>
+                    </ul>
+                </div>
+                <div class="rulebook-footer">
+                    <button id="startGameFromRulebook" class="btn-primary btn-large">LET'S PLAY!</button>
+                </div>
+            </div>
+        </div>
+                    </div>
+
+            </div>
+        </div>
+
+        <!-- Game Info Header -->
+        <div id="gameHeader" class="game-header hidden">
+            <div class="header-content">
+                <h2 id="gameTitle">Game Loading...</h2>
+            </div>
+        </div>
+
+        <!-- Player Info Display -->
+        <div id="playerInfo" class="player-info hidden">
+            <div id="currentPlayer" class="current-player">Player Name</div>
+            <div id="alivePlayers" class="alive-players">Alive: 0 / 0</div>
+        </div>
+
+        <!-- Action Timer -->
+        <div id="actionTimerContainer" class="action-timer-container hidden">
+            <div class="timer-label">Time Left</div>
+            <div id="actionTimerValue" class="timer-value">10</div>
+            <div class="timer-bar">
+                <div id="actionTimerProgress" class="timer-progress"></div>
+            </div>
+        </div>
+
+        <!-- Game Screens -->
+        <!-- Red Light Green Light Screen -->
+        <div id="redLightScreen" class="screen game-screen">
+            <div class="game-content">
+                <div class="rules-panel">
+                    <h3>Rules</h3>
+                    <p>React quickly to GREEN lights! Complete 4 successful moves within 20 seconds. Moving on RED = elimination. If time runs out or you don't get 4 successes, you are eliminated.</p>
+                </div>
+                <div class="game-area">
+                    <!-- Central Light Indicator (only one) -->
+                    <div class="central-light" id="centralLight">
+                        <span id="centralLightSymbol" class="central-light-symbol">🟢</span>
+                        <span id="centralLightText" class="central-light-text">GREEN</span>
+                    </div>
+                    <!-- Countdown Timer -->
+                    <div class="countdown-timer">
+                        <span id="countdownValue">20</span> seconds left
+                    </div>
+                    <!-- Attempt Progress: advancing indicator as filled circles -->
+                    <div class="attempt-progress" id="attemptProgress">
+                        <span class="attempt-slot" id="attemptSlot1"></span>
+                        <span class="attempt-slot" id="attemptSlot2"></span>
+                        <span class="attempt-slot" id="attemptSlot3"></span>
+                        <span class="attempt-slot" id="attemptSlot4"></span>
+                    </div>
+                    <!-- Single Action Button -->
+                    <div class="single-action-button">
+                        <button id="btnSingleMove" class="btn-action btn-single-move">MOVE</button>
+                        <button id="btnSkipRedLight" class="btn-action btn-dev" style="background: #666; margin-left: 20px; display: none;">⚡ SKIP (DEV)</button>
+                    </div>
+                    <!-- Feedback Overlays -->
+                    <div id="feedbackOverlay" class="feedback-overlay" style="display:none;"></div>
+                    <div id="eliminationModal" class="elimination-modal" style="display:none;">
+                        <div class="elimination-content">
+                            <h2 id="eliminationReason">Eliminated!</h2>
+                            <button id="eliminationContinueBtn" class="btn-primary">Continue</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Glass Bridge Screen -->
+        <div id="glassBridgeScreen" class="screen game-screen">
+            <div class="game-content">
+                <div class="rules-panel">
+                    <h3>Rules</h3>
+                    <p>Choose LEFT or RIGHT. One is safe, the other shatters. Make 5 correct choices to survive!</p>
+                </div>
+
+                <div class="game-area">
+                    <!-- Bridge Display -->
+                    <div class="bridge-container">
+                        <div class="bridge-finish" aria-label="Finish Line"></div>
+                        <div id="bridgePlayer" class="bridge-player">🧍</div>
+                        <div id="bridgeDisplay" class="bridge-tiles"></div>
+                        <div class="bridge-start" aria-label="Start">START</div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        <button id="btnLeft" class="btn-action btn-left">LEFT</button>
+                        <button id="btnRight" class="btn-action btn-right">RIGHT</button>
+                        <button id="btnSkipBridge" class="btn-action btn-dev" style="background: #666; margin-left: 20px;">⚡ SKIP (DEV)</button>
+                    </div>
+
+                    <!-- Status Message -->
+                    <div id="bridgeStatus" class="status-message"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tug of War Screen -->
+        <div id="tugOfWarScreen" class="screen game-screen">
+            <div class="game-content">
+                <div class="rules-panel">
+                    <h3>Rules</h3>
+                    <p>Hold GROW to extend the bar from the left; release to shrink. Keep the bar's tip inside the moving highlight to build strength. Highest strength survives.</p>
+                </div>
+
+                <div class="game-area">
+                    <!-- New Tug Minigame -->
+                    <div id="tugMini" class="tug-mini">
+                        <div id="tugTrack" class="tug-track">
+                            <div id="tugTarget" class="tug-target"></div>
+                            <div id="tugBar" class="tug-bar"></div>
+                        </div>
+                        <div class="tug-readout">Strength: <span id="tugStrengthValue">0</span></div>
+                        
+                                                <div class="tug-controls" style="text-align:center;margin-top:12px;">
+                                                    <button id="tugGrowBtn" class="btn-action btn-grow">TAP</button>
+                                                </div>
+                    </div>
+
+                    <!-- Action Buttons (hidden for minigame) -->
+                    <div class="action-buttons" style="display:none;">
+                        <button id="btnPull" class="btn-action btn-pull">PULL!</button>
+                        <button id="btnSkipTug" class="btn-action btn-dev" style="background: #666; margin-left: 20px;">⚡ SKIP (DEV)</button>
+                    </div>
+
+                    <!-- Status Message -->
+                    <div id="tugStatus" class="status-message"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="resultsScreen" class="screen">
+            <div class="results-content">
+                <h1 class="results-title">FINAL RESULTS</h1>
+                <div id="resultsDisplay" class="results-list"></div>
+                <button id="restartBtn" class="btn-primary">PLAY AGAIN</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

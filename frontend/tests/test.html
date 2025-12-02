@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backend Test - Squid Game</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #2a0a0a 100%); color: #fff; padding: 40px; min-height: 100vh; }
+        .container { max-width: 900px; margin: 0 auto; background: rgba(0, 0, 0, 0.7); padding: 40px; border-radius: 15px; border: 2px solid #d32f2f; }
+        h1 { color: #d32f2f; margin-bottom: 30px; font-size: 2.5rem; text-align: center; }
+        .test-section { background: rgba(255, 255, 255, 0.05); padding: 20px; margin: 20px 0; border-radius: 10px; border-left: 4px solid #00ff88; }
+        h2 { color: #00ff88; margin-bottom: 15px; font-size: 1.5rem; }
+        button { background: linear-gradient(135deg, #d32f2f, #b71c1c); color: white; border: none; padding: 12px 30px; font-size: 1rem; border-radius: 8px; cursor: pointer; margin: 5px; transition: all 0.3s ease; }
+        button:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(211, 47, 47, 0.5); }
+        .result { background: rgba(0, 0, 0, 0.5); padding: 15px; margin-top: 15px; border-radius: 5px; font-family: 'Courier New', monospace; white-space: pre-wrap; word-wrap: break-word; max-height: 300px; overflow-y: auto; }
+        .success { color: #00e676; }
+        .error { color: #ff1744; }
+        .info { color: #64b5f6; }
+        .status { padding: 10px; margin: 20px 0; border-radius: 5px; text-align: center; font-weight: bold; }
+        .status.online { background: rgba(0, 230, 118, 0.2); border: 2px solid #00e676; color: #00e676; }
+        .status.offline { background: rgba(255, 23, 68, 0.2); border: 2px solid #ff1744; color: #ff1744; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Backend Connection Test</h1>
+        <div id="connectionStatus" class="status offline">Backend Status: Checking...</div>
+        <div class="test-section">
+            <h2>Test 1: Red Light Green Light</h2>
+            <p>Tests the Red Light Green Light game endpoint</p>
+            <button onclick="testRedLight('move')">Test MOVE action</button>
+            <button onclick="testRedLight('stay')">Test STAY action</button>
+            <div id="result1" class="result"></div>
+        </div>
+        <div class="test-section">
+            <h2>Test 2: Glass Bridge</h2>
+            <p>Tests the Glass Bridge game endpoint</p>
+            <button onclick="testGlassBridge('left')">Test LEFT choice</button>
+            <button onclick="testGlassBridge('right')">Test RIGHT choice</button>
+            <div id="result2" class="result"></div>
+        </div>
+        <div class="test-section">
+            <h2>Test 3: Tug of War</h2>
+            <p>Tests the Tug of War game endpoint</p>
+            <button onclick="testTugOfWar()">Test PULL action</button>
+            <div id="result3" class="result"></div>
+        </div>
+        <div class="test-section">
+            <h2>Instructions</h2>
+            <ul style="margin-left: 20px; line-height: 1.8;">
+                <li>Make sure backend.exe is running on port 8080</li>
+                <li>Click the test buttons above to verify API endpoints</li>
+                <li>Check the results to ensure proper JSON responses</li>
+                <li>If tests fail, check browser console (F12) for errors</li>
+            </ul>
+        </div>
+    </div>
+    <script>
+        const API_URL = 'http://localhost:8080';
+        async function checkBackendStatus() {
+            try {
+                const response = await fetch(`${API_URL}/health`);
+                document.getElementById('connectionStatus').className = 'status online';
+                document.getElementById('connectionStatus').textContent = 'Backend Status: ONLINE ✓';
+            } catch (error) {
+                document.getElementById('connectionStatus').className = 'status offline';
+                document.getElementById('connectionStatus').textContent = 'Backend Status: OFFLINE ✗';
+            }
+        }
+        async function testRedLight(action) {
+            const resultDiv = document.getElementById('result1');
+            resultDiv.innerHTML = '<span class="info">Testing...</span>';
+            try {
+                const response = await fetch(`${API_URL}/redlight`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ playerName: 'TestPlayer', action: action, position: 2 })
+                });
+                const data = await response.json();
+                resultDiv.innerHTML = `<span class="success">✓ Success!</span>\n\n` +
+                    `Request:\n${JSON.stringify({ playerName: 'TestPlayer', action, position: 2 }, null, 2)}\n\n` +
+                    `Response:\n${JSON.stringify(data, null, 2)}`;
+                checkBackendStatus();
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">✗ Error!</span>\n\n${error.message}\n\n` +
+                    `Make sure backend is running on ${API_URL}`;
+            }
+        }
+        async function testGlassBridge(choice) {
+            const resultDiv = document.getElementById('result2');
+            resultDiv.innerHTML = '<span class="info">Testing...</span>';
+            try {
+                const response = await fetch(`${API_URL}/glassbridge`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ playerName: 'TestPlayer', choice: choice, step: 0 })
+                });
+                const data = await response.json();
+                resultDiv.innerHTML = `<span class="success">✓ Success!</span>\n\n` +
+                    `Request:\n${JSON.stringify({ playerName: 'TestPlayer', choice, step: 0 }, null, 2)}\n\n` +
+                    `Response:\n${JSON.stringify(data, null, 2)}`;
+                checkBackendStatus();
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">✗ Error!</span>\n\n${error.message}\n\n` +
+                    `Make sure backend is running on ${API_URL}`;
+            }
+        }
+        async function testTugOfWar() {
+            const resultDiv = document.getElementById('result3');
+            resultDiv.innerHTML = '<span class="info">Testing...</span>';
+            try {
+                const response = await fetch(`${API_URL}/tugofwar`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ playerName: 'TestPlayer', strength: 5, turn: 3, opponentStrength: 12 })
+                });
+                const data = await response.json();
+                resultDiv.innerHTML = `<span class="success">✓ Success!</span>\n\n` +
+                    `Request:\n${JSON.stringify({ playerName: 'TestPlayer', strength: 5, turn: 3, opponentStrength: 12 }, null, 2)}\n\n` +
+                    `Response:\n${JSON.stringify(data, null, 2)}`;
+                checkBackendStatus();
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">✗ Error!</span>\n\n${error.message}\n\n` +
+                    `Make sure backend is running on ${API_URL}`;
+            }
+        }
+        checkBackendStatus();
+    </script>
+</body>
+</html>
